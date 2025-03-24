@@ -9,3 +9,8 @@
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+
+[[headers]]
+  for = "/encrypted/*"
+  [headers.values]
+    Content-Type = "application/octet-stream"
