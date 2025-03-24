@@ -57,7 +57,7 @@
     };
 
     async function fetchKey() {
-      const res = await fetch("/.netlify/functions/get-decryption-key");
+      const res = "nZQTvqg2DN2WyDybswDBwzzhK3bqFLLtTzp3f1LcXgQ="
       const base64Key = await res.text();
       const rawKey = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
       return crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
