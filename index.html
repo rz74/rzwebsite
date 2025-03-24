@@ -133,18 +133,27 @@
       const encPath = `/encrypted/${encFilename}`;
       const res = await fetch(encPath);
       const buffer = await res.arrayBuffer();
-      const { nonce, tag, ciphertext } = splitEncryptedData(buffer);
+
+      const nonce = buffer.slice(0, 12);
+      const ciphertextWithTag = buffer.slice(12);
       const key = await fetchKey();
 
-      const decrypted = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: nonce, tagLength: 128 },
-        key,
-        new Uint8Array([...new Uint8Array(ciphertext), ...new Uint8Array(tag)])
-      );
+      try {
+        const decrypted = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: nonce },
+          key,
+          ciphertextWithTag
+        );
 
-      const blob = new Blob([decrypted], { type: "image/jpeg" });
-      return URL.createObjectURL(blob);
+        const blob = new Blob([decrypted], { type: "image/jpeg" });
+        return URL.createObjectURL(blob);
+      } catch (err) {
+        console.error("Decryption failed for", encFilename, err);
+        return "";
+      }
     }
+
+
 
     async function fetchAllLabels() {
       const indexMap = await fetchIndexMap();
