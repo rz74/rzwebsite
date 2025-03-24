@@ -67,6 +67,16 @@
       z-index: 999;
       display: none;
     }
+    #footer {
+      position: absolute;
+      bottom: 12px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    #footer a {
+      color: #aaa;
+      text-decoration: none;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -77,22 +87,12 @@
   <h1>Enter the Secret Sequence Capy~</h1>
   <div class="grid" id="image-grid"></div>
   <div id="error"></div>
-  <div id="overlay">WHE ARE YOU? WHERE IS CAPYBARA!</div>
+  <div id="overlay">Wrong again? Who are you! Where is capybara</div>
+  <div id="footer">
+    <a href="https://github.com/rz74/rzwebsite" target="_blank">View source on GitHub</a>
+  </div>
 
   <script>
-    const allImages = [
-      "coffee_in_soho.jpg",
-      "watermelon_from_wf.jpg",
-      "rock_climbing.jpg",
-      "museum_of_s.jpg",
-      "sleep_no_more.jpg",
-      "life_and_trust.jpg",
-      "cutting_xmax_tree.jpg",
-      "chinese_new_year.jpg",
-      "capy_neon_light.jpg",
-      "fogo_magic.jpg"
-    ];
-
     const grid = document.getElementById("image-grid");
     const errorDiv = document.getElementById("error");
     const overlay = document.getElementById("overlay");
@@ -100,50 +100,91 @@
     let userSequence = [];
     let failCount = 0;
 
+    async function fetchKey() {
+      const res = await fetch("/.netlify/functions/get-decryption-key");
+      const base64Key = await res.text();
+      const rawKey = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
+      return crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
+    }
+
+    function splitEncryptedData(buffer) {
+      const nonce = buffer.slice(0, 12);
+      const tag = buffer.slice(12, 28);
+      const ciphertext = buffer.slice(28);
+      return { nonce, tag, ciphertext };
+    }
+
     async function fetchIndexMap() {
       const res = await fetch("/.netlify/functions/get-index-map");
       return await res.json();
     }
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
+    async function fetchObfuscationMap() {
+      const res = await fetch("/.netlify/functions/get-obfuscation-map");
+      return await res.json();
+    }
+
+    async function fetchNotionUrl() {
+      const res = await fetch("/.netlify/functions/get-notion-url");
+      return await res.text();
+    }
+
+    async function decryptImage(encFilename) {
+      const encPath = `/encrypted/${encFilename}`;
+      const res = await fetch(encPath);
+      const buffer = await res.arrayBuffer();
+      const { nonce, tag, ciphertext } = splitEncryptedData(buffer);
+      const key = await fetchKey();
+
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: nonce, tagLength: 128 },
+        key,
+        new Uint8Array([...new Uint8Array(ciphertext), ...new Uint8Array(tag)])
+      );
+
+      const blob = new Blob([decrypted], { type: "image/jpeg" });
+      return URL.createObjectURL(blob);
+    }
+
+    async function fetchAllLabels() {
+      const indexMap = await fetchIndexMap();
+      return Object.keys(indexMap);
     }
 
     async function init() {
+      const allImages = await fetchAllLabels();
       const indexMap = await fetchIndexMap();
-      const selected = shuffle(allImages).slice(0, 4);
-      const correctOrder = selected
-        .slice()
-        .sort((a, b) => indexMap[a] - indexMap[b]);
+      const obfuscationMap = await fetchObfuscationMap();
+      const notionUrl = await fetchNotionUrl();
+      const selected = allImages.sort(() => 0.5 - Math.random()).slice(0, 4);
+      const correctOrder = selected.slice().sort((a, b) => indexMap[a] - indexMap[b]);
 
-      selected.forEach(filename => {
+      for (const label of selected) {
+        const encFilename = obfuscationMap[label];
         const img = document.createElement("img");
-        img.src = filename;
-        img.alt = filename;
-        img.dataset.filename = filename;
+        img.alt = "capy image";
+        img.dataset.label = label;
         img.style.opacity = 0;
         img.style.transform = "scale(0.8)";
 
-        setTimeout(() => {
-          img.style.transition = "opacity 0.5s, transform 0.5s";
-          img.style.opacity = 1;
-          img.style.transform = "scale(1)";
-        }, 700);
+        decryptImage(encFilename).then(url => {
+          img.src = url;
+          setTimeout(() => {
+            img.style.transition = "opacity 0.5s, transform 0.5s";
+            img.style.opacity = 1;
+            img.style.transform = "scale(1)";
+          }, 700);
+        });
 
-        img.addEventListener("click", () => {
+        img.addEventListener("click", async () => {
           if (userSequence.length >= 4) return;
-
           img.classList.add("clicked");
-          userSequence.push(filename);
+          userSequence.push(label);
 
           if (userSequence.length === 4) {
             const isCorrect = userSequence.every((val, i) => val === correctOrder[i]);
             if (isCorrect) {
-              window.location.href = "https://www.notion.so/1bfb0041173180758799d683acc2f0e6?v=1bfb0041173180428c20000c514d2e70";
+              window.location.href = notionUrl;
             } else {
               failCount++;
               errorDiv.textContent = "Incorrect sequence. Try again.";
@@ -159,8 +200,9 @@
             }
           }
         });
+
         grid.appendChild(img);
-      });
+      }
     }
 
     init();
