@@ -129,29 +129,35 @@
       return await res.text();
     }
 
-    async function decryptImage(encFilename) {
-      const encPath = `/encrypted/${encFilename}`;
-      const res = await fetch(encPath);
-      const buffer = await res.arrayBuffer();
+  async function decryptImage(encFilename) {
+    const encPath = `/encrypted/${encFilename}`;
+    const res = await fetch(encPath);
+    const buffer = await res.arrayBuffer();
 
-      const nonce = buffer.slice(0, 12);
-      const ciphertextWithTag = buffer.slice(12);
-      const key = await fetchKey();
+    const nonce = buffer.slice(0, 12);
+    const tag = buffer.slice(12, 28);
+    const ciphertext = buffer.slice(28);
+    const key = await fetchKey();
 
-      try {
-        const decrypted = await crypto.subtle.decrypt(
-          { name: "AES-GCM", iv: nonce },
-          key,
-          ciphertextWithTag
-        );
+    const combined = new Uint8Array(ciphertext.byteLength + tag.byteLength);
+    combined.set(new Uint8Array(ciphertext), 0);
+    combined.set(new Uint8Array(tag), ciphertext.byteLength);
 
-        const blob = new Blob([decrypted], { type: "image/jpeg" });
-        return URL.createObjectURL(blob);
-      } catch (err) {
-        console.error("Decryption failed for", encFilename, err);
-        return "";
-      }
+    try {
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: nonce, tagLength: 128 },
+        key,
+        combined
+      );
+
+      const blob = new Blob([decrypted], { type: "image/jpeg" });
+      return URL.createObjectURL(blob);
+    } catch (err) {
+      console.error("Decryption failed for", encFilename, err);
+      return "";
     }
+  }
+
 
 
 
