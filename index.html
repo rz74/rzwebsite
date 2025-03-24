@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QMX90CZV86"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QMX90CZV86');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Secret Journal Access</title>
@@ -14,14 +22,18 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      overflow: hidden;
     }
     h1 {
       margin-bottom: 2rem;
+      animation: fadeIn 1s ease-out;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 200px);
       gap: 20px;
+      opacity: 0;
+      animation: fadeIn 1s ease-out 0.5s forwards;
     }
     .grid img {
       width: 200px;
@@ -30,14 +42,34 @@
       border: 4px solid transparent;
       border-radius: 12px;
       cursor: pointer;
-      transition: border 0.2s;
+      transition: border 0.2s, transform 0.3s;
     }
     .grid img.clicked {
       border-color: #00ffaa;
+      transform: scale(1.05);
     }
     #error {
       color: #ff6b6b;
       margin-top: 1rem;
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      color: #fff;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      display: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -45,10 +77,12 @@
   <h1>Enter the Secret Sequence Capy~</h1>
   <div class="grid" id="image-grid"></div>
   <div id="error"></div>
+  <div id="overlay">WHE ARE YOU? WHERE IS CAPYBARA!</div>
 
   <script>
     const correctOrder = ['1','4','3','2'];
     let userSequence = [];
+    let failCount = 0;
 
     const images = [
       { src: 'tesla.jpg', id: '1', alt: 'Rock Climbing' },
@@ -71,6 +105,14 @@
       img.src = imgData.src;
       img.alt = imgData.alt;
       img.dataset.id = imgData.id;
+      img.style.opacity = 0;
+      img.style.transform = "scale(0.8)";
+      setTimeout(() => {
+        img.style.transition = "opacity 0.5s, transform 0.5s";
+        img.style.opacity = 1;
+        img.style.transform = "scale(1)";
+      }, 700);
+
       img.addEventListener("click", () => {
         if (userSequence.length >= 4) return;
 
@@ -81,9 +123,18 @@
           if (JSON.stringify(userSequence) === JSON.stringify(correctOrder)) {
             window.location.href = "https://www.notion.so/1bfb0041173180758799d683acc2f0e6?v=1bfb0041173180428c20000c514d2e70";
           } else {
+            failCount++;
             document.getElementById("error").textContent = "Incorrect sequence. Try again.";
             document.querySelectorAll(".grid img").forEach(i => i.classList.remove("clicked"));
             userSequence = [];
+            if (failCount >= 2) {
+              const overlay = document.getElementById("overlay");
+              overlay.style.display = "flex";
+              setTimeout(() => {
+                overlay.style.display = "none";
+              }, 3000);
+              failCount = 0; // Reset after showing message
+            }
           }
         }
       });
