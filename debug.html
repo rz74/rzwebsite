@@ -44,20 +44,22 @@
 
   <script>
     const imageMap = {
-      "1d0c004e426e.png": "01_the_romans.png",
-      "21cdab09338a.png": "02_the_renaissance.png",
-      "f81d97602cb3.png": "03_discovery_of_american_continent.png",
-      "b8eb50c364a8.png": "04_ww1.png",
-      "c8bdf492a520.png": "05_great_depression.png",
-      "e5ef067e8637.png": "06_ww2.png",
-      "270697b0f3d0.png": "07_vietnam_war.png",
-      "7dbe590e76d0.png": "08_first_iphone.png",
-      "b9d00c42e46b.png": "09_2020.png",
-      "9b036ea315d9.png": "10_rise_of_llms.png"
+      
+    "01.jpg": "d63f70a650b2.enc",
+    "02.jpg": "bb388168b33d.enc",
+    "03.jpg": "36aa3b86c7b9.enc",
+    "04.jpg": "c4e8141a30f7.enc",
+    "05.jpg": "0018d7070b8a.enc",
+    "06.jpg": "b0ffad2ffc42.enc",
+    "07.jpg": "504c957f7979.enc",
+    "08.jpg": "3663584d1a5f.enc",
+    "09.jpg": "fd3441fc240e.enc",
+    "10.jpg": "d918eb1ef055.enc"
+
     };
 
     async function fetchKey() {
-      const res = "dUzQKr3gZWNmttJnNhJlPWe_9F7_yWS75TsLY3R5MxY="
+      const res = "gA9lw2gDVkbtI9wZiy0VdFafdLBBnMVInUp4bRG_ckg="
       const base64Key = await res.text();
       const rawKey = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
       return crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
