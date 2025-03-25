@@ -43,6 +43,8 @@ This project is **not open source — yet**. I'm actively working on it and expl
 
 You're welcome to explore the public demo and learn from it, but please **do not copy, reuse, or redistribute** the code, images, or concepts without permission.
 
+📄 See [LICENSE](./LICENSE) for details.
+
 🚀 That said, I'm totally open to collaboration!  
 If you're interested in building something similar or want to chat about creative interactive web experiences, feel free to reach out.
 
