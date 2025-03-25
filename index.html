@@ -129,8 +129,9 @@
     }
 
     async function fetchNotionUrl() {
-      const res = await fetch("/.netlify/functions/get-notion-url");
-      return await res.text();
+      // const res = await fetch("/.netlify/functions/get-notion-url");
+      // return await res.text();
+      return "/.netlify/functions/mirror-github";
     }
 
     async function decryptImage(encFilename) {
