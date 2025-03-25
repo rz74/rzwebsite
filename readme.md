@@ -1,12 +1,13 @@
 # Secret Journal Access – Public Demo
 
-Welcome to the **Public Demo** of the Secret Journal Access project. This is a puzzle-based gate featuring AI-generated historical images and a hidden target revealed only after solving the sequence.
+Welcome to the **Public Demo** of the Secret Journal Access project.  
+This is a puzzle-based gate featuring AI-generated historical images and a hidden target revealed only after solving the sequence.
 
 ## 🧠 What It Is
 
 This project presents users with a visual memory puzzle: select four AI-generated historical images in the correct chronological order. If successful, you're granted access to a hidden destination — without ever seeing the real URL.
 
-In this public demo, that target is **mirrored** inside the app, so you never leave the site.
+In this public demo, the target is **mirrored** inside the app using a serverless function, so it appears seamlessly within the site.
 
 ## 🔍 Features
 
@@ -17,25 +18,45 @@ In this public demo, that target is **mirrored** inside the app, so you never le
   A 4-image memory challenge that asks the user to click through historical events in the correct timeline order.
 
 - 🔐 **Hidden Destination via Mirroring**  
-  On success, users are shown a mirrored external page (e.g., a GitHub repo) using a Netlify Function proxy — the actual target URL is never revealed.
+  On success, users are shown a mirrored external page (e.g., a GitHub repo) using a Netlify Function proxy — the actual target URL is never revealed to the user.
 
 - 🔁 **New Puzzle on Refresh**  
   Each refresh gives you a new random 4-image sequence to solve.
 
-## 🛠 How It Works
+## 📁 Project Structure
 
-1. **A client-side script** fetches encrypted `.enc` image files from `/encrypted/` and decrypts them using AES-GCM in the browser.
-2. The correct image order is determined by a hidden index map served via a Netlify function.
-3. The images are obfuscated using random filenames, and only the logic knows how to match them.
-4. If the player succeeds, a mirrored version of the target page is rendered via `/functions/mirror-github`.
+```plaintext
+public-demo/
+├── .netlify/functions/        # Serverless functions for key delivery and logic
+├── encrypted/                 # AES-GCM encrypted image files (.enc)
+├── index.html                 # The interactive puzzle gate UI
+├── README.md                  # You're reading it!
+├── LICENSE                    # Custom non-open-source license
+└── resource/                  # 🔍 Internal reference only – not part of deployment
+    ├── index-map.json         # Shows the true image order (used in backend)
+    ├── obfuscation-map.json   # Maps real image names → .enc filenames
+    ├── decrypted-previews/    # Optional: preview of raw images
+    └── notes.md               # Internal design notes and logic breakdown
+```
+
+> 🔎 The `resource/` folder exists only to help reviewers understand the logic. It is **not deployed** publicly and does not affect the live application.
+
+## 🚀 How It Works
+
+1. Images are encrypted using AES-GCM with randomized filenames.
+2. The frontend fetches and decrypts `.enc` files in the browser using Web Crypto.
+3. A Netlify function provides the correct chronological index for the selected images.
+4. Upon successful sequence input, the app shows a **mirrored version** of a hidden target (like a GitHub repo) using a proxy function.
 
 ## 🔗 Demo Target
 
-In this public branch, the target page is
+In this public demo, the final destination is:
 
-this repo.
+```
+https://github.com/rz74/rzwebsite
+```
 
-…but you'll never see that directly. Instead, it's mirrored within the app using a serverless function and iframe to keep it visually seamless.
+…but you’ll never see that in the browser address bar. It’s mirrored inside the app using a Netlify Function proxy, so users stay within the site visually.
 
 ## 🤝 License & Collaboration
 
@@ -43,14 +64,14 @@ This project is **not open source — yet**. I'm actively working on it and expl
 
 You're welcome to explore the public demo and learn from it, but please **do not copy, reuse, or redistribute** the code, images, or concepts without permission.
 
-📄 See [LICENSE](./LICENSE) for details.
-
 🚀 That said, I'm totally open to collaboration!  
 If you're interested in building something similar or want to chat about creative interactive web experiences, feel free to reach out.
 
+→ Contact: rz0704rz@gmail.com
 
+📄 See [LICENSE](./LICENSE) for details.
 
 ---
 
-Thanks for visiting 🐾
-
+Thanks for visiting 🐾  
+— **rz74**
