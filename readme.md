@@ -44,3 +44,19 @@ This is a custom-built **puzzle gate** where visitors must unlock access by clic
 ├── index.html              # Main frontend HTML
 ├── netlify.toml            # Netlify build config
 └── README.md
+## 🤝 License & Collaboration
+
+This project is **not open source — yet**. I'm actively working on it and exploring the best way to share it more broadly in the future.
+
+You're welcome to explore the public demo and learn from it, but please **do not copy, reuse, or redistribute** the code, images, or concepts without permission.
+
+📄 See [LICENSE](./LICENSE) for details.
+
+🚀 That said, I'm totally open to collaboration!  
+If you're interested in building something similar or want to chat about creative interactive web experiences, feel free to reach out.
+
+
+
+---
+
+Thanks for visiting 🐾
