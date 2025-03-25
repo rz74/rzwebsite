@@ -1,5 +1,9 @@
 # Secret Journal Access – Public Demo
 
+Demo Link:
+https://famous-conkies-f890d7.netlify.app/
+
+
 Welcome to the **Public Demo** of the Secret Journal Access project.  
 This is a puzzle-based gate featuring AI-generated historical images and a hidden target revealed only after solving the sequence.
 
